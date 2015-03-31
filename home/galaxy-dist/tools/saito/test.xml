@@ -2,7 +2,7 @@
 
   <description>using various XML tags</description>
 
-  <command interpreter="perl">test.pl $option1 $option2 $option3 $option4 $input $output</command>
+  <command interpreter="perl">test.pl $option1 $option2 $option3 $option4 $input1 $input2 $output1 $output2</command>
 
   <inputs>
     <param name="option1" type="text" value="tmpdir" label="option: specify a text"/>
