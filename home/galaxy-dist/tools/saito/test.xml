@@ -7,7 +7,7 @@
   <inputs>
     <param name="input1" type="data" label="input1 data"/>
     <param name="input2" type="data" label="input2 data"/>
-    <param name="option1" type="integer" label="option 1 integer"/>
+    <param name="option1" type="integer" value="1985" label="option 1 integer"/>
     <param name="option2" type="boolean" truevalue="-d" label="option 2 boolean"/>
   </inputs>
 
