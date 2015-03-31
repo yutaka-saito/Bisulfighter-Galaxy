@@ -1,0 +1,36 @@
+<tool id="TOOLS_SAITO_TEST" name="test for saito tools" version="1.0.0">
+
+  <description>using various XML tags</description>
+
+  <command interpreter="perl">test.pl $input1 $input2 $option1 $option2 $output1 $output2</command>
+
+  <inputs>
+    <param name="input1" type="data" label="input1 data"/>
+    <param name="input2" type="data" label="input2 data"/>
+    <param name="option1" type="integer" label="option 1 integer"/>
+    <param name="option2" type="boolean" truevalue="-d" label="option 2 boolean"/>
+  </inputs>
+
+  <outputs>
+    <data name="output1" format="tabular" label="output1 tabular"/>
+    <data name="output2" format="tabular" label="output2 tabular"/>
+  </outputs>
+
+  <help>
+This is a test tool.    
+  </help>
+
+  <citations>
+    <citation type="doi">10.1093/bioinformatics/btq281</citation>
+  </citations>
+
+</tool>
+
+<!--
+  <version_command>tophat -version</version_command>  
+
+Also note the use of the reserved parameter name GALAXY_DATA_INDEX_DIR - it points to the ~/tool-data directory. 
+ \${GALAXY_SLOTS:-4} 
+
+Number of cores/threads allocated by the job runner or resource manager to the tool for the given job (here 4 is the default number of threads to use if running via custom runner that does not configure GALAXY_SLOTS or in an older Galaxy runtime). 
+-->
