@@ -115,5 +115,6 @@
   </section>
   <section id="saito" name="Saito Tools">
     <tool file="saito/test.xml" />
+    <tool file="saito/ComMet_wrapper.xml" />
   </section>
 </toolbox>

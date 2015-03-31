@@ -2,13 +2,14 @@
 
   <description>using various XML tags</description>
 
-  <command interpreter="perl">test.pl $option1 $option2 $option3 $option4 $input1 $input2 $output1 $output2</command>
+  <command interpreter="perl">test.pl $option1 $option2 $option3 $option4 $option5 $intype.intype_select $input1 $input2 $output1 $output2</command>
 
   <inputs>
     <param name="option1" type="text" value="tmpdir" label="option: specify a text"/>
     <param name="option2" type="integer" value="1985" label="option: specify an integer"/>
-    <param name="option3" type="boolean" truevalue="-do-something" label="option: specify a boolean"/>
-    <param name="option4" type="select" label="option: select from abcd">
+    <param name="option3" type="float" value="0.1985" label="option: specify a float"/>
+    <param name="option4" type="boolean" truevalue="-do-something" label="option: specify a boolean"/>
+    <param name="option5" type="select" label="option: select from a,b,c,d">
       <option value="a">select a</option>
       <option value="b">select b</option>
       <option value="c">select c</option>
@@ -38,9 +39,8 @@
   <help>
 This is a test tool.    
   </help>
-
   <citations>
-    <citation type="doi">10.1093/bioinformatics/btq281</citation>
+    <citation type="doi">10.1093/nar/gkt1373</citation>
   </citations>
 
 </tool>
