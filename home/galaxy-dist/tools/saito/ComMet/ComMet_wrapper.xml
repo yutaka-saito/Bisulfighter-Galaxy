@@ -5,27 +5,20 @@
 <!--
   <version_command>ComMet | head -n1 | awk '{print $2}'</version_command>
 -->
+  <requirements>
+    <requirement type="set_environment">TOOLDIR</requirement>
+  </requirements>
 
   <command interpreter="perl">
-    ComMet_wrapper.pl $intype.intype_mapper 
+    ComMet_wrapper.pl TOOLDIR $intype.intype_mapper 
 
     #if $intype.intype_mapper=="bsf-call"
       $in1 $in2 
-<!--
-    #else if $intype.intype_mapper=="bismark"
-      $in1bigwig $in1bam $in2bigwig $in2bam 
--->
     #else if $intype.intype_mapper=="commet"
-      $in  
+      $in 
     #else
+      
     #end if
-
-<!--
-    #if $advancedset.advancedset_use=="Yes"
-      $beta $dual $cpg 
-    #else      
-    #end if
--->
 
     $outdmc $outdmr
   </command>
@@ -34,41 +27,17 @@
     <conditional name="intype">
       <param name="intype_mapper" type="select" label="input type">
         <option value="bsf-call" selected="true">bsf-call</option>
-        <option value="bismark">bismark</option>
         <option value="commet">commet</option>
       </param>
       <when value="bsf-call">
         <param name="in1" type="data" format="tabular" label="bsf-call file for sample 1"/>
         <param name="in2" type="data" format="tabular" label="bsf-call file for sample 2"/>
       </when>
-<!--
-      <when value="bismark">
-        <param name="in1bigwig" type="data" format="bigwig" label="bismark bigwig file for sample 1"/>
-        <param name="in1bam" type="data" label="bismark bam file for sample 1"/>
-        <param name="in2bigwig" type="data" label="bismark bigwig file for sample 2"/>
-        <param name="in2bam" type="data" label="bismark bam file for sample 2"/>
-      </when>
--->
       <when value="commet">
         <param name="in" type="data" format="tabular" label="commet input file"/>
       </when>
     </conditional> 
 
-<!--
-    <conditional name="advancedset">
-      <param name="advancedset_use" type="select" label="use advanced setting">
-        <option value="No" selected="true">No</option>
-        <option value="Yes">Yes</option>
-      </param>
-      <when value="No">
-      </when>
-      <when value="Yes">
-        <param name="beta" type="boolean" falsevalue="--nobeta" label="use beta mixture distributions"/>
-        <param name="dual" type="boolean" falsevalue="--nodual" label="use dual HMM architectures"/>
-        <param name="cpg" type="boolean" falsevalue="--noncpg" label="input files contain cytosine sites only in CpG context"/>
-      </when>
-    </conditional>    
--->
   </inputs>
 
   <outputs>

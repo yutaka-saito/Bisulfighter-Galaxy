@@ -114,7 +114,7 @@
     <tool file="maf/vcf_to_maf_customtrack.xml" />
   </section>
   <section id="saito" name="Saito Tools">
-    <tool file="saito/test.xml" />
-    <tool file="saito/ComMet_wrapper.xml" />
+    <tool file="saito/test/test.xml" />
+    <tool file="saito/ComMet/ComMet_wrapper.xml" />
   </section>
 </toolbox>
