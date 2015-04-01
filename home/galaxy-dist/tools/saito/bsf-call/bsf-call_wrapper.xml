@@ -1,0 +1,161 @@
+<tool id="bsf-call" name="bsf-call" version="1.0.0">
+
+  <description>Mapping bisulfite-seq reads</description>
+
+<!--
+  <version_command>ComMet | head -n1 | awk '{print $2}'</version_command>
+-->
+  <requirements>
+    <requirement type="set_environment">TOOLDIR</requirement>
+  </requirements>
+
+  <command interpreter="perl">
+    bsf-call_wrapper.pl TOOLDIR $intype.intype_read idx
+
+    #if $intype.intype_read=="single-end"
+      $in 
+    #else if $intype.intype_mapper=="paired-end"
+      $in1 $in2
+    #else
+      
+    #end if
+
+    $outres
+  </command>
+
+  <inputs>
+    <conditional name="intype">
+      <param name="intype_read" type="select" label="input type">
+        <option value="single-end" selected="true">single-end</option>
+        <option value="paired-end">paired-end</option>
+      </param>
+      <when value="single-end">
+        <param name="in" type="data" format="fastqsanger" label="single-end fastq read"/>
+      </when>
+      <when value="paired-end">
+        <param name="in1" type="data" format="fastqsanger" label="paired-end fastq read 1"/>
+        <param name="in2" type="data" format="fastqsanger" label="paired-end fastq read 2"/>
+      </when>
+    </conditional> 
+
+  </inputs>
+
+  <outputs>
+    <data name="outres" format="tabular" label="${tool.name} on ${on_string}: output result"/>
+    <data name="outlog" format="txt" label="${tool.name} on ${on_string}: output log" from_work_dir="bsfwork/bsf-call.log"/>
+  </outputs>
+
+  <help>
+**ComMet**
+
+Detection of differentially methylated regions from bisulfite-seq mapping data
+
+------
+
+**Input format**
+
+hogehoge
+
+------
+
+**Output format**
+
+output1 contains information of differential methylation at individual cytosine sites::
+  
+  Col.| Description
+  ----+--------------------------------------
+  1   | chromosome name 
+  2   | 0-based genomic position
+  3   | mC ratio in sample1
+  4   | mC ratio in sample2 
+  5   | prob. for hypermethylation (UP) in sample1 against sample2
+  6   | prob. for hypomethylation (DOWN) in sample1 against sample2
+  7   | prob. for no methylation change (NoCh) between sample1 and sample2
+
+
+output2 contains information of detected DMRs::
+  
+  Col.| Description
+  ----+--------------------------------------
+  1   | chromosome name 
+  2   | 0-based genomic start position
+  3   | 0-based genomic stop position
+  4   | direction of differential methylation (UP/DOWN) comparing sample1 to sample2
+  5   | log-likelihood ratio score 
+  6   | log-likelihood ratio score divided by DMR length
+
+
+Make sure output1 and output2 are used properly considering the purpose of your study. 
+You should use output1 if you are interested only in differential methylation at 
+individual cytosine sites (Note that it is the purpose of most existing packages for 
+bisulfite sequencing data analysis developed by other groups).
+ComMet is mainly designed for DMR detection, i.e. determining precise boundaries of 
+regional differential methylation, even if DMRs include some cytosine sites whose 
+observed methylation changes are relatively weak due to limited sequencing depth. 
+Such an analysis is useful for identifying biologically important DMRs such as 
+cis regulatory elements; output2 is suitable for this purpose. 
+
+------
+
+**Tips for detection of DMRs in non-CpG context**
+
+ComMet version 1.1 supports detection of DMRs in non-CPG context (CHG and CHH). 
+
+Make sure an input file is prepared separately for each context, and ComMet is executed 
+with proper options. We do not recommend that input files for different contexts are 
+combined, or ComMet is executed --noncpg option while an input file contains only CpGs.
+
+------
+
+**FAQ**
+
+\Q. What is the meaning of the error "distance between neighbor CpGs must not be less than 2"?
+::
+  
+  A. 
+  Your input file contains invalid genomic positions. 
+  By definition of CpG, the base next to C must be G, and therefore two neighbor CpGs should be 
+  separated by at least two bases. Your input file may violate this rule for several reasons.  
+  First, the input file may contain two neighbor CpGs from different strands, 
+  i.e. the 5'-CpG-3' in the plus strand, and the neighboring 3'-GpC-5' in the minus strand. 
+  See the "Input format" section above for this issue. 
+  Second, the input file may contain cytosines in non-CpG context; just remove them. 
+
+  
+\Q. The read counts in the example input file are decimals rather than integers. Why?  
+::
+  
+  A. 
+  Either decimals or integers can be used for read counts in input files. 
+  The reason that the example input file contains decimals is that some alignment tools produce 
+  probability-weighted read counts. Of course, you can use your favorite aligners for preparing 
+  input files that may contain integers only.
+
+
+\Q. Can ComMet compute statistical significance (p-values) rather than likelihood ratio scores?
+::
+
+  A.
+  No. But we are planning to address this issue in the next version of ComMet. 
+
+------
+
+**Contact**
+
+Yutaka Saito
+
+yutaka.saito AT aist.go.jp
+  </help>
+
+  <citations>
+    <citation type="doi">10.1093/nar/gkt1373</citation>
+  </citations>
+
+</tool>
+
+<!--
+Also note the use of the reserved parameter name GALAXY_DATA_INDEX_DIR - it points to the ~/tool-data directory. 
+ \${GALAXY_SLOTS:-4} 
+
+Number of cores/threads allocated by the job runner or resource manager to the tool for the given job (here 4 is the default number of threads to use if running via custom runner that does not configure GALAXY_SLOTS or in an older Galaxy runtime). 
+-->

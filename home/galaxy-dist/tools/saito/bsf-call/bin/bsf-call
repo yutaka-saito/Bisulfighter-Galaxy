@@ -1,0 +1,204 @@
+#!/usr/bin/env python
+"""
+Bisulfighter::bsf-call
+
+Bisulfighter (http://epigenome.cbrc.jp/bisulfighter)
+by National Institute of Advanced Industrial Science and Technology (AIST)
+is licensed under a Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License.
+http://creativecommons.org/licenses/by-nc-sa/3.0/
+"""
+
+__version__= "1.3"
+
+from optparse import OptionParser
+import os
+import sys
+import re
+
+prog = 'bsf-call'
+usage = """%prog [options] refgenome read1 read2 ...
+  example: %prog -o experiment.txt hg38.fa paired-sample1-1.fastq,paired-sample1-2.fastq"""
+description = "A mapping of the read bisulfite treated by LAST, to detect methylated cytosine (mC) of the results, and outputs the detection result to the file."
+
+op = OptionParser(prog=prog, usage=usage, description=description, version="%s-%s" % (prog, __version__))
+
+op.add_option("-c", "--coverage", type="int", default=5, metavar="C",
+              help="threshold of read coverate (default: %default)")
+
+# op.add_option("-d", "--pe-direction", type="string", default="ff",
+#               help="direction of paired-end probes: ff, fr, rf, rr (default: %default)")
+# 
+op.add_option("-l", "--lower-bound", type="float", default=0.05, metavar="L",
+              help="threshold of mC ratio (default: %default)")
+
+op.add_option("-p", "--multi-thread", type="int", default=1, metavar="P",
+              help="number of threads (default: %default)")
+
+op.add_option("-s", "", type="int", default=150, metavar="S",
+              help="threshold of the alignment score at filtering (default: %default)")
+
+op.add_option("-m", "", type="float", default=1e-9, metavar="M",
+              help="threshold of the mismap probability at filtering (default: %default)")
+
+# op.add_option("", "--last", type="string", default="", metavar="OPT1,OPT2,...",
+#               help="options for LAST (lastal command)")
+# 
+op.add_option("-o", "", type="string", default="bsf-call.out", metavar="FILE",
+              help="output file (default: bsf-call.out)")
+
+op.add_option("-W", "", type="string", default="./bsfwork", metavar="WORKDIR",
+              help="work directory (default: ./bsfwork)")
+
+op.add_option("", "--work-auto", action="store_true", dest="auto_create_work_dir", default=False,
+              help="create work directory automatically")
+
+# op.add_option("-n", "", action="store_true", dest="use_cluster", default=False,
+#               help="run bsf-call on pc cluster")
+# 
+# op.add_option("-q", "", type="string", default="", metavar="QUEUE_LIST",
+#               help="queue list")
+# 
+op.add_option("-M", "", type="string", metavar="MAPPING_DIR",
+              help="mapping result directory")
+
+op.add_option("-T", "", type="string", metavar="LOCAL_DIR",
+              help="local directory")
+
+# op.add_option("-r", "", type="string", default="100M", metavar="SPLIT_READ_SIZE",
+#               help="split read size")
+# 
+# op.add_option("", "--bam", action="store_true", dest="read_bam", default=False,
+#               help="read BAM file for mC detection")
+# 
+# op.add_option("", "--sam", action="store_true", dest="read_sam", default=False,
+#               help="read SAM file for mC detection")
+# 
+# op.add_option("-z", "--compress-prog", type="string", dest="z", metavar="COMPRESS_PROG", default="bzip2", 
+#               help="compression program")
+
+options, args = op.parse_args()
+
+errors = []
+
+work_dir = None
+if options.W:
+    work_dir = options.W
+else:
+    if not options.auto_create_work_dir:
+        work_dir = "bsfwork"
+
+if options.M:
+    if len(args) < 1:
+        op.error("\n  Reference genome is not specified.")
+
+    for result_dir in options.M.split(","):
+        if not os.path.exists(result_dir):
+            errors.append("Mapping result directory: '%s' does not exist." % options.M)
+
+    # if options.read_bam and options.read_sam:
+    #     errors.append("--bam and --sam cannot be placed simultaneously.")
+
+    ref_genome = args[0]
+    reads = None
+else:
+    if len(args) < 2:
+        op.error("\n  Reference genome and read sequence is not specified.")
+
+    # if options.read_bam:
+    #     errors.append("--bam option is specified but -M option is not specified.")
+
+    # if options.read_sam:
+    #     errors.append("--sam option is specified but -M option is not specified.")
+
+    ref_genome = args[0]
+    reads = args[1:]
+
+    for read_files in reads:
+        for read_file in read_files.split(','):
+            if not os.path.exists(read_file):
+                errors.append("Read file: '%s' does not exists." % read_file)
+
+    if work_dir and os.path.exists(work_dir):
+        errors.append("Working directory: '%s' already exists." % work_dir)
+
+if not os.path.exists(ref_genome):
+    errors.append("Reference genome: '%s' does not exists." % ref_genome)
+
+# if options.read_bam or options.read_sam:
+#     try:
+#         import pysam
+#     except:
+#         errors.append("--bam or --sam is specified but pysam is not installed.")
+
+if len(errors) > 0:
+    op.error("\n  " + "\n  ".join(errors))
+
+cmd_opts = {}
+cmd_opts["coverage"] = options.coverage
+# cmd_opts["pe_direction"] = options.pe_direction
+cmd_opts["num_threads"] = options.multi_thread
+cmd_opts["lower_bound"] = options.lower_bound
+cmd_opts["aln_score_thres"] = options.s
+cmd_opts["aln_mismap_prob_thres"] = options.m
+cmd_opts["output"] = options.o
+# cmd_opts["last_opts"] = options.last
+cmd_opts["work_dir"] = work_dir
+# cmd_opts["use_cluster"] = options.use_cluster
+# cmd_opts["queue_list"] = options.q
+cmd_opts["mapping_dir"] = options.M
+cmd_opts["local_dir"] = options.T
+# cmd_opts["split_read_size"] = options.r
+# cmd_opts["read_bam"] = options.read_bam
+# cmd_opts["read_sam"] = options.read_sam
+# cmd_opts["compress_prog"] = options.z
+
+try:
+    sys.path.append('.');
+    import bsfcall
+except ImportError:
+    errors.append("\"import bsfcall\" failed. Please be sure you have bsfcall.py in your python library path.");
+
+import subprocess
+
+# if not checkRunnable('last-map-probs'):
+#     sys.exit(1)
+# if not checkRunnable('last-pair-probs'):
+#     sys.exit(1)
+# if not checkRunnable(options.z):
+#     sys.exit(1)
+
+if len(errors) > 0:
+    op.error("\n  " + "\n  ".join(errors))
+
+# if cmd_opts["use_cluster"]:
+#     cmd_opts["num_threads"] = 1
+#     bsf_call = bsfcall.BsfCallCluster(ref_genome, reads, cmd_opts)
+# else:
+#     bsf_call = bsfcall.BsfCall(ref_genome, reads, cmd_opts)
+bsf_call = bsfcall.BsfCall(ref_genome, reads, cmd_opts)
+
+bsf_call.execute()
+
+sys.exit(0)
+
+def checkRunnable(cmd):
+    for outline, errline in runProcess(cmd.split()):
+        if (re.match(r'error: subProcess:', errline) is not None):
+            print >>sys.stderr, '\"%s\" is not found.' % cmd
+            return False
+    return True
+
+def runProcess(exe):
+    try:
+        p = subprocess.Popen(exe, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    except:
+        yield (None, 'error: runProcess: \'%s\' failed.' % ' '.join(exe))
+        return
+    while (True):
+        retcode = p.poll()
+        if (retcode is not None):
+           break
+        outline = p.stdout.readline()
+        errline = p.stderr.readline()
+        yield (outline, errline)
+
