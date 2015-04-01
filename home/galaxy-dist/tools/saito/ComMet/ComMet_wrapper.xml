@@ -3,7 +3,7 @@
   <description>Detection of differentially methylated regions from bisulfite-seq mapping data</description>
 
 <!--
-  <version_command>ComMet.v11.linux.64 | head -n1 | awk '{print $2}'</version_command>
+  <version_command>ComMet | head -n1 | awk '{print $2}'</version_command>
 -->
 
   <command interpreter="perl">
@@ -11,37 +11,50 @@
 
     #if $intype.intype_mapper=="bsf-call"
       $in1 $in2 
-    #else
+<!--
+    #else if $intype.intype_mapper=="bismark"
       $in1bigwig $in1bam $in2bigwig $in2bam 
+-->
+    #else if $intype.intype_mapper=="commet"
+      $in  
+    #else
     #end if
 
+<!--
     #if $advancedset.advancedset_use=="Yes"
       $beta $dual $cpg 
-    #else
-      
+    #else      
     #end if
+-->
 
     $outdmc $outdmr
   </command>
 
   <inputs>
     <conditional name="intype">
-      <param name="intype_mapper" type="select" label="input type, bisulfite-seq mapping data produced by">
+      <param name="intype_mapper" type="select" label="input type">
         <option value="bsf-call" selected="true">bsf-call</option>
         <option value="bismark">bismark</option>
+        <option value="commet">commet</option>
       </param>
       <when value="bsf-call">
         <param name="in1" type="data" format="tabular" label="bsf-call file for sample 1"/>
         <param name="in2" type="data" format="tabular" label="bsf-call file for sample 2"/>
       </when>
+<!--
       <when value="bismark">
         <param name="in1bigwig" type="data" format="bigwig" label="bismark bigwig file for sample 1"/>
         <param name="in1bam" type="data" label="bismark bam file for sample 1"/>
         <param name="in2bigwig" type="data" label="bismark bigwig file for sample 2"/>
         <param name="in2bam" type="data" label="bismark bam file for sample 2"/>
       </when>
-    </conditional>    
+-->
+      <when value="commet">
+        <param name="in" type="data" format="tabular" label="commet input file"/>
+      </when>
+    </conditional> 
 
+<!--
     <conditional name="advancedset">
       <param name="advancedset_use" type="select" label="use advanced setting">
         <option value="No" selected="true">No</option>
@@ -55,6 +68,7 @@
         <param name="cpg" type="boolean" falsevalue="--noncpg" label="input files contain cytosine sites only in CpG context"/>
       </when>
     </conditional>    
+-->
   </inputs>
 
   <outputs>
