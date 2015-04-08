@@ -1,8 +1,8 @@
-<tool id="TOOLS_SAITO_TEST" name="test saito tools" version="1.0.0">
+<tool id="ComMet" name="ComMet" version="1.0.0">
 
-  <description>using various XML tags</description>
+  <description>Detection of differentially methylated regions from bisulfite-seq read count data</description>
 
-  <command interpreter="perl">test.pl $option1 $option2 $option3 $option4 $input1 $input2 $output1 $output2</command>
+  <command interpreter="perl">ComMet_wrapper.pl $input1 $input2 $output1 $output2</command>
 
   <inputs>
     <param name="option1" type="text" value="tmpdir" label="option: specify a text"/>
@@ -14,20 +14,10 @@
       <option value="c">select c</option>
       <option value="d">select d</option>
     </param>
-    <conditional name="intype">
-      <param name="intype_select" type="select" label="input type">
-        <option value="bsf-call">bsf-call</option>
-        <option value="bismark">bismark</option>
-      </param>
-      <when value="bsf-call">
-	<param name="input1" type="data" label="bsf-call result for sample 1"/>
-	<param name="input2" type="data" label="bsf-call result for sample 2"/>
-      </when>
-      <when value="bismark">
-	<param name="input1" type="data" label="bismark result for sample 1"/>
-	<param name="input2" type="data" label="bismark result for sample 2"/>
-      </when>
-    </conditional>    
+    <param name="input1" type="data" label="input1 data"/>
+    <param name="input2" type="data" label="input2 data"/>
+
+
   </inputs>
 
   <outputs>
