@@ -107,10 +107,3 @@ mituyama-toutai AT aist.go.jp
   </citations>
 
 </tool>
-
-<!--
-Also note the use of the reserved parameter name GALAXY_DATA_INDEX_DIR - it points to the ~/tool-data directory. 
- \${GALAXY_SLOTS:-4} 
-
-Number of cores/threads allocated by the job runner or resource manager to the tool for the given job (here 4 is the default number of threads to use if running via custom runner that does not configure GALAXY_SLOTS or in an older Galaxy runtime). 
--->
