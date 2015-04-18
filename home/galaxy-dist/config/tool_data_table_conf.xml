@@ -8,5 +8,4 @@
         <columns>value, dbkey, name, path</columns>
         <file path="tool-data/bsf-call_indexes.loc" />
     </table>
-
 </tables>
