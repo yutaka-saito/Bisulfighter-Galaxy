@@ -5,11 +5,11 @@ use warnings;
 
 use FindBin;
 
-print STDOUT join(" ", @ARGV), "\n";
+print STDOUT "The tool script is called with:\n", join(" ", ($0, @ARGV)), "\n\n";
 
 my ($in, $outdmc, $outdmr) = ("", "", "");
-#my $default_option = "--nobeta --nodual";
 my $default_option = "";
+#my $default_option = "--nobeta --nodual";
 
 my $tooldir = shift(@ARGV);
 $tooldir = $FindBin::Bin;

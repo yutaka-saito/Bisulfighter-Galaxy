@@ -1,0 +1,12 @@
+<tables>
+    <!-- Pitagora -->
+    <table name="bowtie2_indexes" comment_char="#">
+        <columns>value, dbkey, name, path</columns>
+        <file path="tool-data/bowtie2_indexes.loc" />
+    </table>
+    <table name="bsf-call_indexes" comment_char="#">
+        <columns>value, dbkey, name, path</columns>
+        <file path="tool-data/bsf-call_indexes.loc" />
+    </table>
+
+</tables>

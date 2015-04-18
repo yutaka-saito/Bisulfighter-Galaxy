@@ -5,27 +5,40 @@ use warnings;
 
 use FindBin;
 
-print STDOUT join(" ", ($0, @ARGV)), "\n";
+print STDOUT "The tool script is called with:\n", join(" ", ($0, @ARGV)), "\n\n";
 
-my ($in, $outres) = ("", "");
-my $default_option = "";
+my ($idx, $in) = ("", "");
+my $default_option = "-o bsf-call.out -W bsfwork";
 
 my $tooldir = shift(@ARGV);
 $tooldir = $FindBin::Bin;
-my $intype_read = shift(@ARGV);
-my $idx = shift(@ARGV);
-$idx = "$tooldir/data/chrX.sub.fa";
+$ENV{PATH} = "$tooldir/bin:" . $ENV{PATH};
+my $reference_source = shift(@ARGV);
+my $read_end = shift(@ARGV);
+my $gslot = shift(@ARGV);
+#$idx = "$tooldir/data/chrX.sub.fa";
 
-if ($intype_read eq "single-end") {
-    ($in, $outres)  = @ARGV;
-    &invoke_command("$tooldir/bin/bsf-call $idx $in > $outres");
+if ($reference_source eq "indexed") {
+    $idx = shift(@ARGV);
 }
-elsif ($intype_read eq "paired-end") {
+elsif ($reference_source eq "history") {
+    my $own = shift(@ARGV);
+    $idx = "reference.fa";
+    &invoke_command("ln -s $own reference.fa");
+}
+else {
+    die "never reach here\n";
+}
+
+if ($read_end eq "single-end") {
+    $in = shift(@ARGV);
+    &invoke_command("$tooldir/bin/bsf-call $default_option -p $gslot $idx $in");
+}
+elsif ($read_end eq "paired-end") {
     my $in1 = shift(@ARGV);
     my $in2 = shift(@ARGV);
     $in = $in1 . "," . $in2;
-    $outres = shift(@ARGV);
-    &invoke_command("$tooldir/bin/bsf-call $idx $in > $outres");
+    &invoke_command("$tooldir/bin/bsf-call $default_option -p $gslot $idx $in");
 }
 else {
     die "never reach here\n";

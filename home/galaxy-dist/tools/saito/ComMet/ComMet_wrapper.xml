@@ -1,20 +1,18 @@
 <tool id="ComMet" name="ComMet" version="1.0.0">
-
   <description>Detection of differentially methylated regions from bisulfite-seq mapping data</description>
-
 <!--
-  <version_command>ComMet | head -n1 | awk '{print $2}'</version_command>
+  <version_command></version_command>
 -->
   <requirements>
     <requirement type="set_environment">TOOLDIR</requirement>
   </requirements>
 
   <command interpreter="perl">
-    ComMet_wrapper.pl TOOLDIR $intype.intype_mapper 
+    ComMet_wrapper.pl TOOLDIR $intype.mapper 
 
-    #if $intype.intype_mapper=="bsf-call"
+    #if $intype.mapper=="bsf-call"
       $in1 $in2 
-    #else if $intype.intype_mapper=="commet"
+    #else if $intype.mapper=="commet"
       $in 
     #else
       
@@ -25,8 +23,8 @@
 
   <inputs>
     <conditional name="intype">
-      <param name="intype_mapper" type="select" label="input type">
-        <option value="bsf-call" selected="true">bsf-call</option>
+      <param name="mapper" type="select" label="input type">
+        <option value="bsf-call">bsf-call</option>
         <option value="commet">commet</option>
       </param>
       <when value="bsf-call">
@@ -54,13 +52,47 @@ Detection of differentially methylated regions from bisulfite-seq mapping data
 
 **Input format**
 
-hogehoge
+Let us consider that we detect differentially methylated regions by comparing sample1 and sample2. 
+Inputs are a pair of two files, each of which contain bisulfite-seq mapping data obtained from sample1 or sample2. 
+Each file should be in the format supported by the bsf-call tool::
+
+  Col.| Description
+  ----+--------------------------------------
+  1   | chromosome label (e.g. chr1)
+  2   | genomic position (0-based)
+  3   | strand (+,-)
+  4   | mC context (CG, CHG, CHH)
+  5   | mC rate (float)
+  6   | read coverage
+
+Alternatively, you can use one input file, which contains bisulfite-seq mapping data for both samples (commet format)::
+
+  Col.| Description
+  ----+--------------------------------------
+  1   | chromosome name 
+  2   | 0-based genomic position
+  3   | number of reads supporting mC in sample1
+  4   | number of reads not supporting mC in sample1
+  5   | number of reads supporting mC in sample2
+  6   | number of reads not supporting mC in sample2
+  
+  reads supporting mC = C-C matches
+  reads not supporting mC = otherwise
+
+Make sure chromosome names and genomic positions are sorted by "sort -k1,1 -k2,2n".
+
+Note that input files do not contain strand information. 
+Normally, you should integrate both strands by summing the read counts at two neighbor CpGs,
+i.e. the 5'-CpG-3' in the plus strand, and the neighboring 3'-GpC-5' in the minus strand. 
+Alternatively, if you are interested in strand-specific DMRs, you can prepare two input files 
+for plus and minus strands, and apply them to ComMet separately. 
+
 
 ------
 
 **Output format**
 
-output1 contains information of differential methylation at individual cytosine sites::
+Output1 contains information of differential methylation at individual cytosine sites::
   
   Col.| Description
   ----+--------------------------------------
@@ -72,8 +104,7 @@ output1 contains information of differential methylation at individual cytosine 
   6   | prob. for hypomethylation (DOWN) in sample1 against sample2
   7   | prob. for no methylation change (NoCh) between sample1 and sample2
 
-
-output2 contains information of detected DMRs::
+Output2 contains information of detected DMRs::
   
   Col.| Description
   ----+--------------------------------------
@@ -84,7 +115,6 @@ output2 contains information of detected DMRs::
   5   | log-likelihood ratio score 
   6   | log-likelihood ratio score divided by DMR length
 
-
 Make sure output1 and output2 are used properly considering the purpose of your study. 
 You should use output1 if you are interested only in differential methylation at 
 individual cytosine sites (Note that it is the purpose of most existing packages for 
@@ -94,16 +124,6 @@ regional differential methylation, even if DMRs include some cytosine sites whos
 observed methylation changes are relatively weak due to limited sequencing depth. 
 Such an analysis is useful for identifying biologically important DMRs such as 
 cis regulatory elements; output2 is suitable for this purpose. 
-
-------
-
-**Tips for detection of DMRs in non-CpG context**
-
-ComMet version 1.1 supports detection of DMRs in non-CPG context (CHG and CHH). 
-
-Make sure an input file is prepared separately for each context, and ComMet is executed 
-with proper options. We do not recommend that input files for different contexts are 
-combined, or ComMet is executed --noncpg option while an input file contains only CpGs.
 
 ------
 
@@ -153,9 +173,3 @@ yutaka.saito AT aist.go.jp
 
 </tool>
 
-<!--
-Also note the use of the reserved parameter name GALAXY_DATA_INDEX_DIR - it points to the ~/tool-data directory. 
- \${GALAXY_SLOTS:-4} 
-
-Number of cores/threads allocated by the job runner or resource manager to the tool for the given job (here 4 is the default number of threads to use if running via custom runner that does not configure GALAXY_SLOTS or in an older Galaxy runtime). 
--->
